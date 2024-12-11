@@ -4,7 +4,9 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import connectDB from './db/connect.mongo.js';
 import ApiError from './utils/ApiError.js';
+import cookieParser from 'cookie-parser';
 const app=express();
+
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
       return res.status(err.statusCode).json({ message: err.message });
@@ -15,6 +17,10 @@ app.use((err, req, res, next) => {
 
 app.use(express.json());
 app.use(cors());
+app.use(express.urlencoded({extended:true}));
+app.use(cookieParser());
+app.use(express.static('public'));
+
 dotenv.config();
 app.listen(process.env.PORT,()=>{
     connectDB();

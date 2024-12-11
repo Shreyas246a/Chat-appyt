@@ -1,14 +1,13 @@
 import asyncHandler from "../utils/AsyncHandler.js";
-import User from "../models/User.js";
+import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
-export const login = (req, res) => {
-    res.send('Login Route');
-};
-
+import ApiResponse from "../utils/ApiResponse.js";
+import { uploadFile } from "../utils/Cloudinary.js";
 
 export const signup =asyncHandler( async(req, res) => {
+        console.log(req.body);
         const {fullName,username,password,confirmPassword,gender,email}   = req.body; 
-        if(!email||!fullName || !username || !password || !confirmPassword ){
+        if(!email||!fullName || !username || !password || !confirmPassword || !gender ){
             return res.status(400).json({message:'All fields are required'});
         }
         if(password !== confirmPassword){
@@ -21,12 +20,89 @@ export const signup =asyncHandler( async(req, res) => {
             throw new ApiError(400,'User already exists');
         }
 
+        const profilePicturePath= req.file ? req.file.path : '';
+        let profileUrl='';
+        if(profilePicturePath){
+           profileUrl=await uploadFile(profilePicturePath);
+        }
+
+        const user = await User.create({
+            email,
+            fullName,
+            username:username.toLowerCase(),
+            gender,
+            password,
+            profilePicture:profileUrl.url
+
+        });
+        const createduser=await User.findById(user._id).select('-password');
         
-
-
-     
+        if(!createduser){
+            throw new ApiError(400,'Somthing went wrong');
+        }
+        return res.status(201).json(
+            new ApiResponse(201,'User created successfully',createduser)    
+        )
 })
 
-export const logout = (req, res) => {   
-    res.send('Logout Route');
-}       
+
+export const login =asyncHandler( async(req, res) => {
+
+const {email,username,password} = req.body;
+if(!email && !username){
+    throw new ApiError(400,'Email or username is required');
+};
+
+const user = await User.findOne({
+    $or:[{email},{username:username.toLowerCase()}]
+});
+
+if(!user){
+    throw new ApiError(400,'User not found');
+}
+if(!password){
+    throw new ApiError(400,'Password is required');
+}
+
+const isPasswordCorrect = await user.isPasswordCorrect(password);
+
+if(!isPasswordCorrect){
+    throw new ApiError(400,'Invalid credentials');
+}
+const accessToken = await user.generateAccessToken();
+const refreshToken = await user.generateRefreshToken();
+
+const options={
+    httpOnly:true,
+    secure:true
+}
+
+return res.status(200)
+.cookie("accessToken",accessToken,options)
+.cookie("refreshToken",refreshToken,options)
+.json(
+    new ApiResponse(200,'User logged in successfully',{user,accessToken,refreshToken})
+)
+})
+
+
+
+
+export const logout =asyncHandler(async(req, res) => {   
+    const user=req.user;
+    const options={
+        httpOnly:true,
+        secure:true
+    }
+    await User.findByIdAndUpdate(user._id,{
+        $set:{
+            refreshToken:undefined
+        }
+    });
+    return res.status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(
+        new ApiResponse(200,'User logged out successfully')
+    )
+})
