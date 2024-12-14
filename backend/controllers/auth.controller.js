@@ -54,7 +54,7 @@ if(!email && !username){
 };
 
 const user = await User.findOne({
-    $or:[{email},{username:username.toLowerCase()}]
+    $or:[{email}, {username:username}]
 });
 
 if(!user){
@@ -105,4 +105,14 @@ export const logout =asyncHandler(async(req, res) => {
     .json(
         new ApiResponse(200,'User logged out successfully')
     )
+})
+
+export const checkUser =asyncHandler(async(req, res) => {
+try{
+    const user=req.user;
+    return res.status(200).json(
+        new ApiResponse(200,'User',user)
+    )}catch(err){
+        throw new ApiError(500,'Internal Server Error');
+    }
 })

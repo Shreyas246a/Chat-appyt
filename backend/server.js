@@ -15,12 +15,15 @@ app.use((err, req, res, next) => {
   });
 
 
-app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({extended:true}));
-app.use(cookieParser());
-app.use(express.static('public'));
-
+  const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true, 
+};
+app.use(cors(corsOptions))
+app.use(express.json({limit:'16kb'}))
+app.use(express.urlencoded({extended:true}))
+app.use(cookieParser())
+app.use(express.static('public'))
 dotenv.config();
 app.listen(process.env.PORT,()=>{
     connectDB();

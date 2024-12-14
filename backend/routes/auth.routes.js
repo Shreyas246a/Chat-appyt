@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, logout, signup } from '../controllers/auth.controller.js';
+import { checkUser, login, logout, signup } from '../controllers/auth.controller.js';
 import { jwtAuth } from '../middleware/auth.middleware.js';
 import { upload } from '../middleware/multer.middleware.js';
 
@@ -13,7 +13,7 @@ router.route('/signup').post(upload.single(
 ),signup);
 router.route('/login').post(upload.none(),login);
 router.route('/logout').post(jwtAuth,logout);
-
+router.route('/check').get(jwtAuth,checkUser);
 
 
 export default router;
