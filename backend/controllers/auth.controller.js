@@ -7,7 +7,7 @@ import { uploadFile } from "../utils/Cloudinary.js";
 export const signup =asyncHandler( async(req, res) => {
         console.log(req.body);
         const {fullName,username,password,confirmPassword,gender,email}   = req.body; 
-        if(!email||!fullName || !username || !password || !confirmPassword || !gender ){
+        if(!email || !fullName || !username || !password || !confirmPassword || !gender ){
             return res.status(400).json({message:'All fields are required'});
         }
         if(password !== confirmPassword){
