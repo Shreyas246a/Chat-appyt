@@ -1,12 +1,13 @@
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import User from "../models/User.js";
+import User from "../models/user.model.js";
 import asyncHandler from "../utils/AsyncHandler.js";
-import Messages from "../models/Message.js";
+import Messages from "../models/message.model.js";
 
 export const getAllUsers = asyncHandler(async (req, res) => {
 const currUser=req.user;
 const users = await User.find({_id:{$ne:currUser._id}}).select('-password');
+console.log(users);
 return res.status(200).json(
     new ApiResponse(200,'All users',users)
 )
@@ -60,12 +61,14 @@ export const sendMessage = asyncHandler(async (req, res) => {
             senderId,
             reciverId,
             text,
-            image:imgUrl.url
+            image:imgUrl.url || ''
         })
 
         await newMessage.save();
 
 
+    }catch(err){
+        throw new ApiError(500,'Internal Server Error');
     }
 
 

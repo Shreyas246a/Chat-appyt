@@ -67,7 +67,7 @@ if(!password){
 const isPasswordCorrect = await user.isPasswordCorrect(password);
 
 if(!isPasswordCorrect){
-    throw new ApiError(400,'Invalid credentials');
+    throw new ApiError(400,'Invalid credentials',['Password is incorrect']);
 }
 const accessToken = await user.generateAccessToken();
 const refreshToken = await user.generateRefreshToken();
@@ -107,11 +107,51 @@ export const logout =asyncHandler(async(req, res) => {
     )
 })
 
+
+export const updateProfile = asyncHandler(async (req, res) => {
+    try {
+      const user = req.user;
+  
+      // Check if a file is uploaded
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+  
+      const profilePicturePath = req.file.path;
+      console.log("File path:", profilePicturePath);
+  
+      // Upload file to storage (e.g., Cloudinary, S3)
+      const profileUrl = await uploadFile(profilePicturePath);
+      console.log("Uploaded URL:", profileUrl);
+  
+      // Update user profile in the database
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { profilePicture: profileUrl.url },
+        { new: true }
+      ).select("-password");
+  
+      if (!updatedUser) {
+        throw new ApiError(400, "User not found or update failed.");
+      }
+  
+      return res.status(200).json(
+        new ApiResponse(200, "Profile updated successfully", updatedUser)
+      );
+    } catch (err) {
+      console.error("Update profile error:", err);
+      return res.status(500).json({ message: "Internal server error." });
+    }
+  });
+
+
+
 export const checkUser =asyncHandler(async(req, res) => {
 try{
     const user=req.user;
+    console.log(user);  
     return res.status(200).json(
-        new ApiResponse(200,'User',user)
+        new ApiResponse(200,'User',{user:user})
     )}catch(err){
         throw new ApiError(500,'Internal Server Error');
     }

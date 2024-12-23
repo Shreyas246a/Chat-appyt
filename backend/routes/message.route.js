@@ -1,6 +1,6 @@
 import express from 'express';
 import { jwtAuth } from '../middleware/auth.middleware.js';
-import { getMessages } from '../controllers/message.controller.js';
+import { getAllUsers, getMessages, getUserById, sendMessage } from '../controllers/message.controller.js';
 import { upload } from '../middleware/multer.middleware.js';
 const router = express.Router();
 
@@ -11,3 +11,6 @@ router.route("/Messages/:id").get(jwtAuth,getMessages);
 router.route("/send/:id").post(upload.single(
     'image'
 ),jwtAuth,sendMessage);
+
+
+export default router;

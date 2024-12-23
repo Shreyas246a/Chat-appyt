@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.routes.js';
 import connectDB from './db/connect.mongo.js';
 import ApiError from './utils/ApiError.js';
 import cookieParser from 'cookie-parser';
+import messageRoutes from './routes/message.route.js';
 const app=express();
 
 app.use((err, req, res, next) => {
@@ -16,11 +17,11 @@ app.use((err, req, res, next) => {
 
 
   const corsOptions = {
-    origin: 'http://localhost:5175',
+    origin: 'http://localhost:5173',
     credentials: true, 
 };
 app.use(cors(corsOptions))
-app.use(express.json({limit:'16kb'}))
+app.use(express.json({limit:'50mb'}))
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(express.static('public'))
@@ -36,4 +37,5 @@ app.get('/',(req,res)=>{
 });
 
 app.use("/api/auth",authRoutes);
+app.use('/api/messages',messageRoutes);
 

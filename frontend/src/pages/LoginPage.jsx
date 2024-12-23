@@ -10,10 +10,15 @@ export const LoginPage = () => {
     const navigate=useNavigate();
     const [formData, setFormData] = useState({ email: "",username:"", password: "" });
     
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
     e.preventDefault();
-    login(formData);
+    try{
+    await login(formData);
     navigate('/home');
+    }catch(err){
+        console.error(err);
+        navigate('/login');
+    }
    } 
    return (
 

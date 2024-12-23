@@ -12,8 +12,8 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get('/auth/check');
-      console.log(res.data.data.user);
-      set({ authUser: res.data.data.user });
+        console.log(res.data.data.user);
+        set({ authUser: res.data.data.user });
     } catch (err) {
       console.error(err);
       set({ authUser: null });
@@ -57,10 +57,25 @@ export const useAuthStore = create((set, get) => ({
       console.log(get().authUser);
       toast.success("Login successful!");
     } catch (err) {
-      console.error(err);
-      toast.error("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please try again.");
+      throw err;
     } finally {
       set({ isLoggingIn: false });
     }
   },
+
+  updateProfile: async (data) => {
+    try {
+      set({ isUpdatingProfile: true });
+      const res = await axiosInstance.put("/auth/updateProfile", data);
+      console.log(res.data.data)
+      set({ authUser: res.data.data.user });
+      toast.success("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update profile. Please try again.");
+    } finally {
+      set({ isUpdatingProfile: false });
+    }
+  }
 }));
