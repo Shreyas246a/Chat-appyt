@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../axios";
+import { send } from "process";
 
 
 
-export const useChatStore = create((set) => ({
+export const useChatStore = create((set,get) => ({
 messages: [],
 users: [],
 selectedUser: null,
@@ -30,15 +31,26 @@ getUsers:async()=>{
     getMessages:async()=>{
         set({isMessageLoading:true});
         try{
-            const res=await axiosInstance.get(`/Messages/${selectedUser._id}`);
+            const {selectedUser}=get();
+            const res=await axiosInstance.get(`messages/Messages/${selectedUser._id}`);
             set({messages:res.data.data});
-        }catch{
+        }catch(err){
+            console.log(err);
             toast.error("Failed to fetch messages");
         }
         finally{
             set({isMessageLoading:false});
     }
 
+},
+sendMessage:async(messageData)=>{
+    const {selectedUser,messages}=get();
+    try{
+        const res =await axiosInstance.post(`messages/SendMessage/${selectedUser._id}`,messageData);
+        set({messages:[...messages,res.data.data]});
+    }catch(err){
+        toast.error("Failed to send message");
+    }
 },
 
 setSelectedUser:(selectedUser)=>{   
