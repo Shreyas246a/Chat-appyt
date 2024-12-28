@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import { ChatContainer } from "../components/ChatContainer";
 import { NoChatSelected } from "../components/NoChatSelected";
 import { Sidebar } from "../components/Sidebar";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/authstore";
 
 export const HomePage = () => {
+    const {AuthUser}=useAuthStore();
     const {selectedUser,isUserLoading,isMessageLoading,getUsers,getMessages}=useChatStore();
     return (
         <div className="h-screen bg-base-200">

@@ -1,5 +1,5 @@
 import { Eye, EyeOff, Mail, MessageSquare, User,Lock,Loader2 } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../store/authstore";
 import { useState } from "react";
 import  AuthImagePattern  from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
@@ -36,13 +36,13 @@ export const SignupPage = () => {
     }
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault()
         console.log(formData);
         const success = validateForm();
         if(success){
           console.log(formData);
-          signup(formData);
+          await signup(formData);
           navigate('/login');
         }
 

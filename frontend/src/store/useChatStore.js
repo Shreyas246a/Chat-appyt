@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
-import { axiosInstance } from "../axios";
-import { send } from "process";
+import { axiosInstance } from "../utils/axios";
 
 
 
@@ -45,9 +44,11 @@ getUsers:async()=>{
 },
 sendMessage:async(messageData)=>{
     const {selectedUser,messages}=get();
+
     try{
         const res =await axiosInstance.post(`messages/SendMessage/${selectedUser._id}`,messageData);
-        set({messages:[...messages,res.data.data]});
+        console.log(res.data.data);
+        set({messages:[...messages,res.data.data]}); 
     }catch(err){
         toast.error("Failed to send message");
     }

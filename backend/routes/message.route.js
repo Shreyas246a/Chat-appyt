@@ -8,7 +8,7 @@ const router = express.Router();
 router.route("/Users").get(jwtAuth,getAllUsers);
 router.route("/Users/:id").get(jwtAuth,getUserById);
 router.route("/Messages/:id").get(jwtAuth,getMessages);
-router.route("/send/:id").post(upload.single(
+router.route("/SendMessage/:id").post(upload.single(
     'image'
 ),jwtAuth,sendMessage);
 

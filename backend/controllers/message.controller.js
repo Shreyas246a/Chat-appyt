@@ -3,6 +3,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import Messages from "../models/message.model.js";
+import { uploadFile } from "../utils/Cloudinary.js";
 
 export const getAllUsers = asyncHandler(async (req, res) => {
 const currUser=req.user;
@@ -49,25 +50,28 @@ return res.status(200).json(
 export const sendMessage = asyncHandler(async (req, res) => {  
     try{
         const {text}=req.body;
-        const {id:reciverId}=req.params;
+        const {id:receiverId}=req.params;
         const senderId=req.user._id;
-        const image = req.files?.image;
-
+        const image = req.file?.path;
         let imgUrl
+        console.log(req.file);
         if(image){
             imgUrl=await uploadFile(image);
+            console.log(imgUrl);
         }
         const newMessage=await Messages.create({
             senderId,
-            reciverId,
+            receiverId,
             text,
-            image:imgUrl.url || ''
+            image:imgUrl?.url || ''
         })
-
         await newMessage.save();
-
-
+        console.log(newMessage);
+        res.status(201).json(
+            new ApiResponse(201,'Message sent',newMessage)
+        )
     }catch(err){
+        console.log(err);   
         throw new ApiError(500,'Internal Server Error');
     }
 
