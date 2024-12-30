@@ -4,11 +4,11 @@ import User from "../models/user.model.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import Messages from "../models/message.model.js";
 import { uploadFile } from "../utils/Cloudinary.js";
+import { getReceiverId, io } from "../utils/socket.js";
 
 export const getAllUsers = asyncHandler(async (req, res) => {
 const currUser=req.user;
 const users = await User.find({_id:{$ne:currUser._id}}).select('-password');
-console.log(users);
 return res.status(200).json(
     new ApiResponse(200,'All users',users)
 )
@@ -66,10 +66,18 @@ export const sendMessage = asyncHandler(async (req, res) => {
             image:imgUrl?.url || ''
         })
         await newMessage.save();
-        console.log(newMessage);
+
+        const receiverSocketId=getReceiverId(receiverId)
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage",newMessage);
+        }
+
+
         res.status(201).json(
             new ApiResponse(201,'Message sent',newMessage)
         )
+
+
     }catch(err){
         console.log(err);   
         throw new ApiError(500,'Internal Server Error');

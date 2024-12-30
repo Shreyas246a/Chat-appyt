@@ -13,13 +13,13 @@ import {Toaster} from 'react-hot-toast'
 import { useThemeStore } from './store/useThemeStore.js';
 
 function App() {
-  const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
+  const {authUser,checkAuth,isCheckingAuth,onlineUsers} = useAuthStore();
 
   useEffect(()=>{ 
     checkAuth();
   },[checkAuth])
   const {theme}=useThemeStore()
-
+  console.log(onlineUsers);
   if(isCheckingAuth && !authUser){
     return (
       <div className="flex justify-center items-center h-screen">
@@ -33,6 +33,7 @@ function App() {
 <div data-theme={theme}>
       <Navbar />
       <Routes>
+        <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/home" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignupPage /> : <Navigate to="/home" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/home" />} />

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { ChatHeader } from "./ChatHeader";
 import { MessageInput } from "./MessageInput";
@@ -7,11 +7,22 @@ import { useAuthStore } from "../store/authstore";
 import { formatMessageTime } from "../utils/utils";
 export const ChatContainer = () => {
 
-const {messages,getMessages,isMessageLoading,selectedUser}=useChatStore();
+const {subscribeToMessages,unSubscribeToMessages,messages,getMessages,isMessageLoading,selectedUser}=useChatStore();
 const {authUser}=useAuthStore();
+const scrollRef=useRef(null);
 useEffect(()=>{
     getMessages();
+    subscribeToMessages();
+    return ()=>{
+        unSubscribeToMessages();
+    }
 },[selectedUser,getMessages])
+
+useEffect(()=>{
+if(scrollRef.current && messages){
+    scrollRef.current.scrollIntoView({smooth:true});
+}
+},[messages])
 
 if(isMessageLoading)
     return (
@@ -29,7 +40,8 @@ return(
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message)=>(
                 <div key={message._id}
-                className={`chat ${message.senderId===authUser._id?"chat-end":"chat-start"}`}>
+                className={`chat ${message.senderId===authUser._id?"chat-end":"chat-start"}`}
+                ref={scrollRef}>
                     <div className="chat-image avatar">
                         <div className="size-10 rounded-full border">
                             <img src={

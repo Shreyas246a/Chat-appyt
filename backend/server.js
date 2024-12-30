@@ -6,7 +6,7 @@ import connectDB from './db/connect.mongo.js';
 import ApiError from './utils/ApiError.js';
 import cookieParser from 'cookie-parser';
 import messageRoutes from './routes/message.route.js';
-const app=express();
+import {app,server,io} from './utils/socket.js';
 
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
@@ -26,11 +26,10 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(express.static('public'))
 dotenv.config();
-app.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT,()=>{
     connectDB();
     console.log('Server is running on port 5000');
 });
-
 
 app.get('/',(req,res)=>{
     res.send('Hello World');
