@@ -60,6 +60,7 @@ subscribeToMessages:()=>{
     const socket=useAuthStore.getState().socket;
     if(!selectedUser) return;
     socket.on("newMessage",(data)=>{
+        if(data.senderId!==selectedUser._id)return;
         set({messages:[...get().messages,data]});
     })
 
